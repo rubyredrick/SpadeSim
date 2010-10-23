@@ -37,10 +37,10 @@ class Simulator
   end
   
   attr_reader :initial_deck, :min_wins, :clubs
-  attr_accessor :hands_played
+  attr_accessor :hands_played, :max_hands
   
-  def initialize(min_wins = 1000)
-    @min_wins = min_wins
+  def initialize(max_hands = nil)
+    @max_hands = max_hands
     @hands_played = 0
     @clubs = (1..13).map {|rank| Card.new(rank, :C)}
     @initial_deck = [
@@ -102,12 +102,19 @@ class Simulator
     end
   end
   
+  def done?
+    if max_hands
+      hands_played >= max_hands
+    else
+      least_wins >= 1
+    end
+  end
+  
   def run
     srand
     start_time = Time.now
-    while least_wins < min_wins
+    until done?
       play_hand
-      # puts "hands played: #{hands_played} least_wins: #{least_wins}"
     end
     report(Time.now - start_time)
   end

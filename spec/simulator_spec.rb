@@ -4,7 +4,7 @@ describe Simulator do
   def hand(cards)
     cards.map {|rank, suit| Simulator.card(rank, suit)}
   end
-  
+
   def club(rank)
     Simulator.card(rank, :C)
   end
@@ -94,7 +94,7 @@ describe Simulator do
       ]
     end
   end
-  
+
   context "winning_card" do
     it "should return the lead club with the highest rank" do
       expected = club(1)
@@ -123,21 +123,21 @@ describe Simulator do
 
       it "should record the winning card" do
         @it.stub(:lead_cards).and_return([
-           Simulator.card(2, :C), 
-           Simulator.card(3,:C)],
-           winning_card = Simulator.card(5, :C),
-           Simulator.card(4, :C)
-           )
-        @it.should_receive(:record_winner).with(winning_card)
-        @it.play_hand
+          Simulator.card(2, :C), 
+          Simulator.card(3,:C)],
+          winning_card = Simulator.card(5, :C),
+          Simulator.card(4, :C)
+          )
+          @it.should_receive(:record_winner).with(winning_card)
+          @it.play_hand
+        end
+      end
+
+      it "should increment the number of hands_played" do
+        lambda {@it.play_hand}.should change(@it, :hands_played).by(1)
       end
     end
 
-    it "should increment the number of hands_played" do
-      lambda {@it.play_hand}.should change(@it, :hands_played).by(1)
-    end
-  end
-  
   context "least_wins" do
     it "should return the lowest winning count for all clubs" do
       counts = [2, 3, 4, 1, 5, 7, 6, 9, 8, 11, 10, 10, 3]
@@ -145,21 +145,39 @@ describe Simulator do
       @it.least_wins.should == counts.min
     end
   end
-  
-  context "#run" do
-    before(:each) do
-      @it.stub(:report)
+
+  context "#done?" do
+    context "when max_hands is not specified" do
+      it "should be true when all clubs have won at least once" do
+        @it.stub(:least_wins).and_return(1)
+        @it.should be_done
+      end
+
+      it "should be false if no card has one at least once" do
+        @it.stub(:least_wins).and_return(0)
+        @it.should_not be_done
+      end
     end
-    it "should stop when all clubs have won at least the minimum number of times" do
-      @it.stub(:least_wins).and_return(@it.min_wins)
-      @it.should_not_receive(:play_hand)
-      @it.run
+
+    context "when max_hands is specified" do
+      before(:each) do
+        @it.max_hands = 10
+      end
+      it "should be true when the maximum number of hands have been played" do
+        @it.stub(:hands_played).and_return(10)
+        @it.should be_done
+      end
+
+      it "should be false if no card has one at least once" do
+        @it.stub(:hands_played).and_return(9)
+        @it.should_not be_done
+      end
     end
-    
-    it "should play a hand if a club has not won the minumum number of times" do
-      @it.stub(:least_wins).and_return(@it.min_wins-1, @it.min_wins)
-      @it.should_receive(:play_hand).once
-      @it.run
-     end
+
+    context("#run") do
+      before(:each) do
+        @it.stub(:report)
+      end
+    end
   end
 end
