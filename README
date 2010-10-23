@@ -1,0 +1,9 @@
+A montecarlo simulator to find approximate probabilities of any club winning the opening trick of a four player game of spades, using the rule variation requiring that the player's lowest club must be played in the first hand.
+
+sim.rb is a command line ruby program to run the simulator.
+
+It takes one optional integer argument which is the number of hand to simulate.
+
+If the argument is not an integer, then the program will output some help text and exit.
+
+If no argument is given then the simulation will run until each club has one at least one hand, but this will take a long time since the 2 of clubs will only win if one player is dealt all of the clubs, and the probability of this is very small on the order of 1 in 150 billion. 
